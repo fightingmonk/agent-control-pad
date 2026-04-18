@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:agent-control-pad}/AgentRemote",
+            "name": "Debug AgentRemote",
+            "target": "AgentRemote",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug AgentRemote (AgentRemote)"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:agent-control-pad}/AgentRemote",
+            "name": "Release AgentRemote",
+            "target": "AgentRemote",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release AgentRemote (AgentRemote)"
+        }
+    ]
+}

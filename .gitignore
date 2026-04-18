@@ -1,0 +1,27 @@
+
+.zmk/
+.DS_Store
+
+# Swift / Xcode build artifacts
+*.app
+*.ipa
+*.dSYM.zip
+*.dSYM
+.build/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.hmap
+*.ipa
+*.moved-aside
+*.xcuserstate
+*.xcscmblueprint
+
+# Swift Package Manager
+.swiftpm/
+Packages/
+Package.resolved
+
+# Temporary files
+*.swp
+*~

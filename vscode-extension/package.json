@@ -1,0 +1,63 @@
+{
+  "name": "agent-remote",
+  "displayName": "Agent Remote",
+  "description": "Maps F13/F16/F17 macro pad keys to Allow/Deny actions for AI agent permission prompts in VS Code terminals",
+  "version": "0.2.0",
+  "license": "Unlicense",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fightingmonk/agent-control-pad"
+  },
+  "publisher": "tappister",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "agentRemote.allowOnce",
+        "title": "Agent Remote: Allow Once"
+      },
+      {
+        "command": "agentRemote.allowAlways",
+        "title": "Agent Remote: Allow Always"
+      },
+      {
+        "command": "agentRemote.deny",
+        "title": "Agent Remote: Deny"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "agentRemote.allowOnce",
+        "key": "f13"
+      },
+      {
+        "command": "agentRemote.allowAlways",
+        "key": "f16"
+      },
+      {
+        "command": "agentRemote.deny",
+        "key": "f17"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "@types/vscode": "^1.93.0",
+    "@vscode/vsce": "^3.0.0",
+    "typescript": "^5.5.0"
+  }
+}
