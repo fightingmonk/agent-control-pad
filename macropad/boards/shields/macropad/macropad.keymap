@@ -1,7 +1,32 @@
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
 
 / {
+    behaviors {
+        bt_ht: bt_hold_tap {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            tapping-term-ms = <1000>;
+            flavor = "hold-preferred";
+            bindings = <&bt>, <&kp>;
+        };
+    };
+
+    combos {
+        compatible = "zmk,combos";
+
+        // Hold keys 0 + 2 (F13 + F17, skipping F16) for 1 second
+        // to clear all BT bonds. Tap sends a harmless F24 (no-op on macOS).
+        combo_bt_clear {
+            timeout-ms = <50>;
+            key-positions = <0 2>;
+            bindings = <&bt_ht BT_CLR_ALL F24>;
+            slow-release;
+            layers = <0>;
+        };
+    };
+
     keymap {
         compatible = "zmk,keymap";
         default_layer {

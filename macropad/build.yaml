@@ -21,3 +21,6 @@
 include:
   - board: nice_nano_v2
     shield: macropad
+  - board: nice_nano_v2
+    shield: settings_reset
+    artifact-name: settings_reset

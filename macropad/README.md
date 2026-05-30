@@ -74,13 +74,23 @@ The slide switch sits between battery positive and the B+ pad, allowing you to f
 
 ## Firmware (ZMK)
 
-ZMK is the firmware for the nice!nano. Setup involves creating a `macropad.keymap` file that maps each of the 3 keys to whatever you want — keyboard shortcuts, media controls, macros, or multi-key combos.
+ZMK is the firmware for the nice!nano. The keymap, shield definition, and build config live in this directory under `boards/`, `config/`, and `build.yaml`.
 
-### Setup steps
+### Building
 
-1. Follow the ZMK docs to create a new "shield" (their term for a keyboard definition).
-2. Define your keymap — for example, mapping keys to `Cmd+1`, `Cmd+2`, `Cmd+3`.
-3. Build the firmware through GitHub Actions.
-4. Flash the resulting `.uf2` file by double-tapping the nice!nano's reset button.
+Firmware is built via a GitHub Actions workflow that uses ZMK's reusable build action. Push to the repo and the workflow produces a `.uf2` artifact you can download from the Actions tab.
 
-The nice!nano will appear as a USB drive when in bootloader mode — just drag the `.uf2` file onto it.
+The ZMK build workflow expects `build.yaml`, `boards/`, `config/`, and `zephyr/` at the repo root. Since those files live in `macropad/`, there are symlinks at the root pointing here. Don't remove them or the build will break.
+
+### Flashing
+
+1. Double-press the reset button on the nice!nano — it enters bootloader mode and appears as a USB drive (`NICENANO`).
+2. Drag the `.uf2` file onto the drive.
+3. The nice!nano reboots with the new firmware automatically.
+
+### Reset buttons
+
+The macro pad has two ways to reset:
+
+- **Hardware reset button** (momentary switch wired to the RST pin): single press resets the board; double-press enters USB bootloader mode for flashing.
+- **Bluetooth bond clear** (F13 + F17 held for 1 second): clears all stored Bluetooth pairings so the pad can be paired fresh with a new computer. A quick tap of both keys does nothing — the 1-second hold prevents accidental clears.

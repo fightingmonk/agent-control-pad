@@ -94,6 +94,16 @@ If you have a macro pad and don't want to build your own, just configure it to s
 * `Approve always` - F16
 * `Deny` - F17
 
+## Resetting Bluetooth
+
+If the macro pad won't connect (e.g. after pairing with a different computer), you can clear all stored Bluetooth bonds directly from the pad:
+
+1. Hold **F13 + F17** (the outer two keys) simultaneously for **1 second**.
+2. The pad clears all bond data and starts advertising as a new device.
+3. On your Mac, go to System Settings > Bluetooth and connect to it.
+
+To forget a stale pairing on the Mac side: System Settings > Bluetooth, click the **(i)** next to the device, then **Forget This Device**.
+
 ## Changing the key bindings
 
 F13, F16, and F17 were chosen because they exist in the USB HID spec but aren't on standard keyboards, so they won't conflict with anything. F14 and F15 are skipped because macOS uses them for brightness controls. If you want to use different keys, you need to change all three layers:
