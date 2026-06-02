@@ -14,12 +14,12 @@ keycap_clearance = 0.5;
 case_padding_x  = 8;      // wall thickness on sides
 case_padding_y  = 8;      // wall thickness front/back
 case_width      = (num_keys * switch_spacing) + (2 * case_padding_x);
-case_depth      = switch_spacing + (2 * case_padding_y);
+case_depth      = switch_spacing + (2 * case_padding_y) + 0.5;
 case_corner_r   = 4;
 // --- Heights ---
 top_plate_h     = 1.6;    // plate thickness around switch cutouts
 bottom_wall_h   = 1.2;    // bottom shell floor thickness
-cavity_depth    = 9.0;    // internal space for PCB + battery + wires
+cavity_depth    = 10.0;    // internal space for PCB + battery + wires
 total_height    = bottom_wall_h + cavity_depth + top_plate_h;
 // --- nice!nano pocket ---
 nano_w          = 18.5;   // width + clearance
@@ -37,14 +37,27 @@ batt_offset_y   = nano_offset_y + (nano_l - batt_l)/2;
 usbc_w          = 10;
 usbc_h          = 3.6;
 // --- Reset button hole (opposite wall from USB-C side) ---
-reset_hole_d    = 4;      // diameter — adjust if needed
+reset_hole_d    = 5;      // diameter — adjust if needed
 // --- Mounting ---
 screw_d         = 2.2;    // M2 screw hole diameter
 standoff_d      = 4.5;
 standoff_h      = cavity_depth - 0.4;
+// --- Lid measurements ---
+lid_stabilizer_height = bottom_wall_h*2+cavity_depth*2+top_plate_h;
+lid_stabilizer_width = 6;
+lid_stabilizer_depth = 2;
+lid_snap_height = lid_stabilizer_height + 2.3;
+
 // ============================================
-// MODULES
+// PRIMITIVES
 // ============================================
+
+module prism(l, w, h){
+    polyhedron(
+        points=[[0,0,0], [l,0,0], [l,w,0], [0,w,0], [0,w,h], [l,w,h]],
+        faces=[[0,1,2,3],[5,4,3,2],[0,4,5,1],[0,3,4],[5,2,1]]
+    );
+}
 module rounded_box(w, d, h, r) {
     hull() {
         for (x = [r, w-r], y = [r, d-r])
@@ -52,6 +65,7 @@ module rounded_box(w, d, h, r) {
                 cylinder(r=r, h=h);
     }
 }
+
 module switch_cutout() {
     // Square cutout for Choc v1 switch
     translate([0, 0, -0.1])
@@ -64,6 +78,11 @@ module switch_cutout() {
             cube([0.9, 4, top_plate_h + 0.2]);
     }
 }
+
+// ============================================
+// ASSEMBLIES
+// ============================================
+
 module top_plate() {
     difference() {
         // Main plate
@@ -96,8 +115,8 @@ module bottom_shell() {
                         cavity_depth + 0.1, case_corner_r - 1);
         
         // nice!nano pocket (recessed)
-        translate([nano_offset_x, nano_offset_y+9.5, bottom_wall_h - 0.1])
-            cube([nano_w, nano_l-3, nano_h + 0.1]);
+        translate([nano_offset_x, nano_offset_y+9, bottom_wall_h - 0.1])
+            cube([nano_w, nano_l-2, nano_h + 0.1]);
         
         // Battery pocket
         translate([batt_offset_x, batt_offset_y+7.5, bottom_wall_h - 0.1])
@@ -132,12 +151,70 @@ module bottom_shell() {
             }
     }
 }
+module lid_end_snap(dir) {
+    cube([lid_stabilizer_depth, lid_stabilizer_width, lid_snap_height]);
+
+    
+    difference() {
+        translate([2*dir, 0, lid_snap_height-2])
+            cube([2, lid_stabilizer_width, 2]);
+        translate([2*dir + (dir > 0 ? 2 : 0), dir > 0 ? lid_stabilizer_width : 0, lid_snap_height+0.5 - 2])
+            rotate([dir > 0 ? 90 : 270, dir > 0 ? 0 : 180, 270])
+                prism(lid_stabilizer_width, 2, 2);
+    }    
+}
+module lid_side_snap(dir) {
+    cube([lid_stabilizer_width*2, lid_stabilizer_depth, lid_snap_height]);
+
+    
+    difference() {
+        translate([0, 2*dir, lid_snap_height-2])
+            cube([lid_stabilizer_width*2, 2, 2]);
+        translate([0, 2*dir+2, lid_snap_height+0.5 - (dir > 0 ? 2 : 0)])
+            rotate([dir > 0 ? 90 : dir > 0 ? 0 : 180, 0, 0])
+                prism(lid_stabilizer_width*2, 2, 2);
+    }    
+}
+module lid_shell() {
+    difference() {
+        // Outer shell
+        rounded_box(case_width, case_depth, 
+                     bottom_wall_h + cavity_depth, case_corner_r);
+        
+        // Main cavity
+        translate([1.5, 1.5, bottom_wall_h])
+            rounded_box(case_width - 3, case_depth - 3,
+                        cavity_depth + 0.1, case_corner_r - 1);
+    }
+    // end bars
+    translate([-2, case_corner_r + 2, 0])
+        lid_end_snap(1);
+    translate([-2, case_depth-(case_corner_r+2) - lid_stabilizer_width, 0])
+        lid_end_snap(1);
+    translate([case_width, case_corner_r + 2, 0])
+        lid_end_snap(-1);
+    translate([case_width, case_depth-(case_corner_r+2) - lid_stabilizer_width, 0])
+        lid_end_snap(-1);
+    
+    // Side bars
+    translate([case_corner_r *3, -2, 0])
+        lid_side_snap(1);
+    translate([case_width - (case_corner_r *3 + lid_stabilizer_width*2), -2, 0])
+        lid_side_snap(1);
+    translate([case_corner_r *3, case_depth, 0])
+        lid_side_snap(-1);
+    translate([case_width - (case_corner_r *3 + lid_stabilizer_width*2), case_depth, 0])
+        lid_side_snap(-1);
+    
+}
 function screw_positions() = [
     [case_corner_r + 1.5, case_corner_r + 1.5],
     [case_width - case_corner_r - 1.5, case_corner_r + 1.5],
     [case_corner_r + 1.5, case_depth - case_corner_r - 1.5],
     [case_width - case_corner_r - 1.5, case_depth - case_corner_r - 1.5]
 ];
+
+
 // ============================================
 // ASSEMBLY VIEW
 // ============================================
@@ -145,6 +222,7 @@ function screw_positions() = [
 //   part = "assembly" -> preview both together (exploded)
 //   part = "top"      -> export top plate STL
 //   part = "bottom"   -> export bottom shell STL
+//   part = "lid"   -> export snap-on lid STL
 part = "assembly"; // <-- change this for export
 if (part == "assembly") {
     // Bottom shell
@@ -154,6 +232,10 @@ if (part == "assembly") {
     color("#e8e8e8")
         translate([0, 0, bottom_wall_h + cavity_depth + 3])
             top_plate();
+    
+    color("#c0c0c0")
+        translate([0, 0, bottom_wall_h + cavity_depth + top_plate_h + 6])
+            lid_shell();
     
     // Ghost outlines for components
     // nice!nano
@@ -166,9 +248,10 @@ if (part == "assembly") {
             cube([batt_w, batt_l-3, batt_h]);
 } else if (part == "top") {
     top_plate();
-    
 } else if (part == "bottom") {
     bottom_shell();
+} else if (part == "lid") {
+    lid_shell();
 }
 // ============================================
 // DIMENSIONS (for reference)
